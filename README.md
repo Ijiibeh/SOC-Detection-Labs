@@ -35,5 +35,24 @@ To view the detailed analysis, technical evidence, and detection logic, please e
 *   📁 **[queries/](./queries/)** - Contains the exact `.spl` (Splunk) detection rule used to catch the attack.
 *   📁 **[images/](./images/)** - Visual evidence of the simulated attack and the resulting Splunk search results.
 
+
+## 📸 Visual Evidence
+
+### 1. Log Ingestion
+*(Proof that Splunk is receiving Windows Event Logs)*
+![Log Ingestion](./01_splunk_log_ingestion.png)
+
+### 2. Attack Execution
+*(Proof of the PowerShell brute-force simulation)*
+![Attack Execution](./02_attack_powershell.png)
+
+### 3. The Detection Rule
+*(The custom SPL query catching the anomaly and displaying the account name)*
+![Detection Rule](./03_splunk_detection_rule.png)
+
+### 4. The Raw Telemetry
+*(The raw Windows Security Event 4625 logs showing the failed logons)*
+![Raw Events](./04_splunk_raw_events.png)
+
 ---
 *Disclaimer: All activities documented in this repository were performed in an isolated, controlled lab environment for educational purposes only. No unauthorized systems were targeted.*
