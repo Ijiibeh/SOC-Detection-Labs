@@ -1,27 +1,39 @@
-# SOC-Detection-Labs
-A collection of Incident Detection &amp; Response (IDR) labs, SIEM queries, and threat hunting reports.
+# 🛡️ Incident Detection & Response (IDR) Home Lab
 
-# Incident Detection & Response (IDR) Home Lab 🛡️
+Welcome to my IDR portfolio. This repository documents my hands-on labs focused on threat detection, log analysis, and incident response. Drawing on my networking background, I designed this lab to simulate a credential-based attack and detect it in real-time using a SIEM, following the NIST SP 800-61 Incident Response Lifecycle.
 
-Welcome to my IDR portfolio. This repository documents my hands-on labs focused on threat detection, log analysis, and incident response using a SIEM (Security Information and Event Management) system.
+## 🏗️ Environment Setup
+To ensure safety and prevent interference with external networks, the lab was built in an isolated environment.
+*   **Host / Target Machine:** Windows 11 (HP EliteBook 840 G7)
+*   **SIEM (Monitoring):** Splunk Enterprise (Installed locally on the Windows Host)
+*   **Attacker Simulation:** PowerShell (Executing local authentication attempts)
+*   **Network Configuration:** Local loopback (127.0.0.1) and isolated Host-Only network (192.168.56.0/24) to ensure all testing remained entirely within the controlled environment.
 
-## 🎯 Lab Objective
-The goal of this lab is to simulate real-world attacks (e.g., brute force, network scanning) and build the detection rules required to catch them.
+## ⚔️ The Attack (Red Team)
+The objective was to simulate a threat actor attempting to gain unauthorized access via credential guessing.
+*   **The Tools:** PowerShell `net use` command.
+*   **The Execution:** I executed a series of rapid, failed authentication attempts against the local Windows SMB/RPC service using a mock username.
+*   **MITRE ATT&CK Mapping:**
+    *   **Tactic:** Credential Access (TA0006)
+    *   **Technique:** T1110 (Brute Force)
 
-## 🛠️ Environment & Tools
-*   **SIEM:** Splunk (or Elastic/Wazuh)
-*   **Target OS:** Windows 10 / Windows 11 / Metasploitable
-*   **Attacker Tools:** Nmap, Hydra, Kali Linux
-*   **Log Sources:** Windows Event Logs, Sysmon, Firewall Logs
+## 🔍 The Detection (Blue Team)
+Splunk was configured to ingest Windows Security Event Logs. I developed a custom Splunk Processing Language (SPL) correlation search to identify the brute-force pattern.
+*   **The Logic:** The rule monitors for EventCode `4625` (An account failed to log on) and aggregates the results by account name. If an account fails to log in more than once within the timeframe, it triggers an alert.
+*   **The Findings:** The SIEM successfully caught the anomaly. Interestingly, the Windows telemetry logged the failures under a background system account (`kioskUser0`) rather than the mock username. This highlighted a crucial real-world lesson: analysts must review raw event telemetry, as systems don't always log what you expect.
+
+## 🚑 The Response (Incident Handling)
+Upon the alert triggering, I acted as the SOC Analyst to triage and investigate the incident.
+*   **Analysis:** Confirmed no successful logons (Event ID 4624) followed the failures, indicating the attack was unsuccessful and no unauthorized access was gained.
+*   **Response:** Because the activity was isolated to the local host and failed, no heavy containment (like network isolation) was required.
+*   **Lessons Learned:** While the detection query was effective, the report recommends tuning the alert to filter out known background accounts (like `kioskUser0`) to prevent alert fatigue in a production SOC environment.
 
 ## 📂 Repository Structure
-*   **[Incident Reports](./docs/)** - Detailed write-ups of simulated attacks and my response to them.
-*   **[Detection Queries](./queries/)** - The actual SIEM queries (SPL/KQL) used to trigger alerts.
-*   **[Dashboards](./images/)** - Screenshots of SIEM dashboards and visualizations.
+To view the detailed analysis, technical evidence, and detection logic, please explore the following folders:
 
-## 🚀 Featured Lab: [Name of your first lab, e.g., SSH Brute Force Detection]
-*   **Attack:** Simulated an SSH brute-force attack using Hydra.
-*   **Detection:** Wrote a Splunk query to detect multiple failed login events (Event ID 4625) within a 5-minute window.
-*   **Response:** Blocked the attacker IP and documented the incident.
+*   📁 **[docs/](./docs/)** - Contains the full, professional `Incident_Report.md` (Executive Summary, Timeline, Impact, and Recommendations).
+*   📁 **[queries/](./queries/)** - Contains the exact `.spl` (Splunk) detection rule used to catch the attack.
+*   📁 **[images/](./images/)** - Visual evidence of the simulated attack and the resulting Splunk search results.
 
-*(Click [here](./docs/) to read the full incident reports!)*
+---
+*Disclaimer: All activities documented in this repository were performed in an isolated, controlled lab environment for educational purposes only. No unauthorized systems were targeted.*
